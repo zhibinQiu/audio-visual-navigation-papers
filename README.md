@@ -1,17 +1,16 @@
-## Sound-visual nvigation
+## Audio-visual nvigation
 
-| Name          | pdf                                                          | github                                           |
-| ------------- | :----------------------------------------------------------- | :----------------------------------------------- |
-| soundspaces   | [**SoundSpaces: Audio-Visual Navigation in 3D Environments**](https://scontent-hkg4-2.xx.fbcdn.net/v/t39.8562-6/10000000_225707052822142_3554026592703488763_n.pdf?_nc_cat=100&ccb=1-7&_nc_sid=ad8a9d&_nc_ohc=IycUF2sAw5kAX_fXrtY&_nc_ht=scontent-hkg4-2.xx&oh=00_AT-0SXodwx2wCx_UrfeW8Tl-5abiG5LFjQzz_DJ0sr0DXA&oe=62D592BC) | https://github.com/facebookresearch/sound-spaces |
-| soudspaces2.0 | [**Soundspaces 2.0: A Simulation Platform for Visual-Acoustic Learning**](https://arxiv.org/pdf/2206.08312.pdf) | https://github.com/facebookresearch/sound-spaces |
-|               | [**Learning to Listen and Move: An Implementation of Audio-Aware Mobile Robot Navigation in Complex Indoor Environment**](https://github.com/yyf17/awesome-embodied-intelligent/blob/main/Learning_to_Listen_and_Move_An_Implementation_of_Audio-Aware_Mobile_Robot_Navigation_in_Complex_Indoor_Environment.pdf) |                                                  |
+| Name          | pdf                                                          | github                                           | description                                                  |
+| ------------- | :----------------------------------------------------------- | :----------------------------------------------- | ------------------------------------------------------------ |
+| soundspaces   | [**SoundSpaces: Audio-Visual Navigation in 3D Environments**](https://scontent-hkg4-2.xx.fbcdn.net/v/t39.8562-6/10000000_225707052822142_3554026592703488763_n.pdf?_nc_cat=100&ccb=1-7&_nc_sid=ad8a9d&_nc_ohc=IycUF2sAw5kAX_fXrtY&_nc_ht=scontent-hkg4-2.xx&oh=00_AT-0SXodwx2wCx_UrfeW8Tl-5abiG5LFjQzz_DJ0sr0DXA&oe=62D592BC) | https://github.com/facebookresearch/sound-spaces |                                                              |
+| soudspaces2.0 | [**Soundspaces 2.0: A Simulation Platform for Visual-Acoustic Learning**](https://arxiv.org/pdf/2206.08312.pdf) | https://github.com/facebookresearch/sound-spaces |                                                              |
+|               | [**Few-Shot Audio-Visual Learning of Environment Acoustics**](https://arxiv.org/pdf/2206.04006.pdf) |                                                  | RIR prediction.Infer arbitrary RIRs having observed only a small number of echoes and images in the space. |
 
 ## Relate task
 
-| Name | pdf  | github |
-| ---- | ---- | ------ |
-|      |      |        |
-|      |      |        |
+| Name                                       | pdf                                                          | github | description                                                  |
+| ------------------------------------------ | ------------------------------------------------------------ | ------ | ------------------------------------------------------------ |
+| Audio-Aware Mobile Robot Navigation（SIM） | [**Learning to Listen and Move: An Implementation of Audio-Aware Mobile Robot Navigation in Complex Indoor Environment**](https://github.com/yyf17/awesome-embodied-intelligent/blob/main/Learning_to_Listen_and_Move_An_Implementation_of_Audio-Aware_Mobile_Robot_Navigation_in_Complex_Indoor_Environment.pdf) |        | RTAB-Map for agent position,Separately training autoencoder(denoise)+SIM(get relative x,y),ROS navigation stack for global path planning. |
 
 
 
@@ -65,5 +64,73 @@
 
 （1）提出了一个Audio-Aware Navigation framework.提出的方法在物理系统上已经实现，在复杂的工业环境下得到验证并且和其他的baselines有显著的改善。
 
-（2）
+（2）提出了Sound Inference Module(SIM) for high resolution SSL.这个模块可以被任何具有SLAM（cameras,range lasers,sonar）能力的机器人使用。
+
+(3)引入了一个能够评估可靠性的指标。通过声源定位错误以及路径长度来测量可靠性。
+
+### RELATE WORK
+
+**A.*Map-Based Navigation***
+
+传统的方法需要借助复杂的传感器来生成地图，本文提出的框架给机器人提供了声学能力能够有效的对声音源头进行定位。
+
+**B.*Audio-Visual Navigation in Unseen Environments***
+
+最近在自主性的视听任务中的研究主要集中在结合声学和视觉线索达到在未见过的环境中进行导航的目的。Gan通过声音的输入来定位声音源头的位置和raw RGB来规划最优的路径。C hen 使用原始的视听输入来预测下一步的最优策略。另外，Chen 还提出了一种基于路径点的技术伴随着声学记忆来增强视听导航任务的表现。而且Chen还利用包含目标的空间和语义属性的目标的描述符介绍语义视听导航。这些研究确认了音频信息是一个强大的导航信息可以被智能的移动机器人进行自主导航。
+
+**C.*Sound Source Localization (SSL)***
+
+过去的声源定位集中于不同的信号处理方法，主要是直接估计终点的方向和距离来定位声音源头。比较普遍的技术包括beamforming,Generalized Cross- Correlation with Phase Transform (GCC-PHAT), Multiple Signal Classification (MUSIC),最近，深度学习方法被用来估计DoA(direction of arrival)。相反的，这篇文章中提出的方法能够在给定的参考图中定位到声源的绝对坐标。这个方案也可以结合SLAM（namely acousutic SLAM,aSLAM）,aSLAMaSLAM是一种用于定位移动麦克风阵列轨迹的技术，同时定位周围声源。本文提出的框架超越了这一点，因为机器人必须将感知到的声学信号与构建的环境几何地图联系起来，并规划最佳路径。
+
+### AUDIO-AWARE NAVIGATION
+
+**A.RTAB-Map**
+
+RTAB-Map [23] is used to construct the 3-D structure of the environment. It utilizes a combination of the robot’s odometry and on-board depth camera to simultaneously generate a map, localize in it and plan paths. **The current position of the robot Im is obtained from RTAB-Map.**
+
+**B.Feature Extraction**
+
+sample rate: 16000
+
+frame size: 1000 ms
+
+stft:
+
+​	fft size:1024
+
+​    hop_length:512	
+
+normalize to  [0,1]
+
+get 256 x 256 complex-valued matrix
+
+use auto-encoder to  extract low-dimensional feature embeddings from the audio spectrogram.
+
+the structure of AE:
+
+​	encoder: 
+
+ 		8 convolutional  layers,Leaky-Relu activation and BN
+
+​    decoder: 
+
+​		与 encoder 结构对称
+
+  minimizes the MSE between original input normalized spectrogram and the reconstructed spectrogram.
+
+**C.Sound INference Module(SIM)**
+
+为了能够计算到声音源头的相对位置，使用欧几里得距离来训练SIM，SIM包含了四个全连接层，除了最后一层每个全连接层之后包含一个RELU,最后一个使用tanh
+
+ The optimizer used is ADAM , with a learning rate of 1×10−3 and a batch size of 64. For better loss convergence, the ground truth relative positions are normalized to [−1,1]. 
+
+### Conclusion
+
+Enhancement module  is help for Audio-Aware Mobile Robot Navigation 
+
+
+
+​	
+
+
 
